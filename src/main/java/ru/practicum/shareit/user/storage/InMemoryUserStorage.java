@@ -19,6 +19,7 @@ public class InMemoryUserStorage implements UserStorage {
     private Long getNextId() {
         return ++id;
     }
+
     @Override
     public User add(User user) {
         isEmailBusy(user);
