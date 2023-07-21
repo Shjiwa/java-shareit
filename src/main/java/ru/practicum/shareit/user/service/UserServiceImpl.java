@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+
     @Override
     public UserDto add(UserDto userDto) {
         return UserMapper.toUserDto(userStorage.add(UserMapper.toUser(userDto)));
