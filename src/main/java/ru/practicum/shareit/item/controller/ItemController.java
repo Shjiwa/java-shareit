@@ -15,7 +15,7 @@ import java.util.Collection;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
-    private final String OWNER_ID_HEADER = "X-Sharer-User-Id";
+    private static final String OWNER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto add(@Valid @RequestBody ItemDto itemDto,
