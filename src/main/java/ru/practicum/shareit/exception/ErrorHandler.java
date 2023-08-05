@@ -30,4 +30,11 @@ public class ErrorHandler {
         log.error(e.getMessage(), e);
         return new ExceptionResponse(HttpStatus.CONFLICT, e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionResponse handleInternalServerErrorException(final InternalServerErrorException e) {
+        log.error(e.getMessage(), e);
+        return new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
 }
