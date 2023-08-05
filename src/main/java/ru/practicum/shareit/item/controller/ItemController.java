@@ -9,19 +9,17 @@ import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.Collection;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
+    private final String OWNER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemDto add(@Valid @RequestBody ItemDto itemDto,
-                       @RequestHeader("X-Sharer-User-Id") Long userId) {
+                       @RequestHeader(OWNER_ID_HEADER) Long userId) {
         log.info("Поступил запрос на добавление вещи от пользователя: {}", userId);
         return itemService.add(itemDto, userId);
     }
@@ -33,7 +31,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getOwnerItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Collection<ItemDto> getOwnerItems(@RequestHeader(OWNER_ID_HEADER) Long userId) {
         log.info("Поступил запрос на получение списка всех вещей пользователя с id: {}", userId);
         return itemService.getOwnerItems(userId);
     }
@@ -46,7 +44,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@PathVariable Long itemId,
-                          @RequestHeader("X-Sharer-User-Id") Long userID,
+                          @RequestHeader(OWNER_ID_HEADER) Long userID,
                           @RequestBody ItemDto itemDto) {
         log.info("Поступил запрос на обновление/изменение вещи: {} от пользователя с id: {}", itemDto, userID);
         return itemService.update(itemId, userID, itemDto);
