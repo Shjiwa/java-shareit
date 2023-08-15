@@ -14,6 +14,7 @@ import java.util.*;
 public class InMemoryUserStorage implements UserStorage {
     private final ExceptionService exceptionService;
     private final Map<Long, User> users = new HashMap<>();
+    private final Set<String> emails = new HashSet<>();
     private Long id = 0L;
 
     private Long getNextId() {
@@ -22,9 +23,13 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User add(User user) {
-        isEmailBusy(user);
+        //isEmailBusy(user);
+        if (emails.contains(user.getEmail())) {
+            exceptionService.throwConflict("Email is busy.");
+        }
         Long id = getNextId();
         user.setId(id);
+        emails.add(user.getEmail());
         users.put(id, user);
         log.info("Пользователь {} создан!", user);
         return user;
@@ -42,13 +47,21 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(Long id, User user) {
-        isEmailBusy(user);
+        //isEmailBusy(user);
         User updatedUser = users.get(id);
         if (!user.getName().isBlank()) {
             updatedUser.setName(user.getName());
         }
         if (!user.getEmail().isBlank() || user.getEmail() != null) {
-            updatedUser.setEmail(user.getEmail());
+            if (!updatedUser.getEmail().equals(user.getEmail())) {
+                if (emails.contains(user.getEmail())) {
+                    exceptionService.throwConflict("Email is busy.");
+                }
+                emails.remove(updatedUser.getEmail());
+                updatedUser.setEmail(user.getEmail());
+                emails.add(updatedUser.getEmail());
+
+            }
         }
         users.put(id, updatedUser);
         log.info("Пользователь {} обновлен", updatedUser);
