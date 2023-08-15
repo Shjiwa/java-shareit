@@ -1,26 +1,22 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
 @Data
-@Validated
-@AllArgsConstructor
 public class UserDto {
+
     private Long id;
-    @NotBlank
+
     private String name;
 
     /**
      * два пользователя не могут
      * иметь одинаковый адрес электронной почты
      */
-    @Email()
-    @NotNull
+    @NotEmpty(message = "Error! Email can't be empty.")
+    @Email(message = "Error! Wrong email.")
     private String email;
 }
