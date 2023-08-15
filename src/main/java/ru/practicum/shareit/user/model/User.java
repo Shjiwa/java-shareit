@@ -1,26 +1,26 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
 @Validated
 @AllArgsConstructor
-public class Item {
+public class User {
     private Long id;
     @NotBlank
     private String name;
-    @NotBlank
-    private String description;
+
+    /**
+     * два пользователя не могут
+     * иметь одинаковый адрес электронной почты
+     */
+    @Email
     @NotNull
-    private Boolean available;
-    @NotNull
-    private User owner;
-    private ItemRequest request;
+    private String email;
 }
