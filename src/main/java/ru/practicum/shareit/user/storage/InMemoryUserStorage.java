@@ -15,6 +15,7 @@ public class InMemoryUserStorage implements UserStorage {
     private final ExceptionService exceptionService;
     private final Map<Long, User> users = new HashMap<>();
     private final Set<String> emails = new HashSet<>();
+
     private Long id = 0L;
 
     private Long getNextId() {
