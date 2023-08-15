@@ -1,26 +1,31 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.validation.annotation.Validated;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 
-@Data
-@Validated
-@AllArgsConstructor
+@Entity
+@Table(name = "users", schema = "public")
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+
+    @Column(nullable = false)
     private String name;
 
     /**
      * два пользователя не могут
      * иметь одинаковый адрес электронной почты
      */
-    @Email
-    @NotNull
+    @Column(nullable = false, unique = true)
     private String email;
 }
