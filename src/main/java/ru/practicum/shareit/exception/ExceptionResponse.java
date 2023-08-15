@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 @Getter
 public class ExceptionResponse {
     private final HttpStatus status;
-    private final String message;
+    private final String error;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private final LocalDateTime time = LocalDateTime.now();
 
     public ExceptionResponse(HttpStatus status, String message) {
         this.status = status;
-        this.message = message;
+        this.error = message;
     }
 }
