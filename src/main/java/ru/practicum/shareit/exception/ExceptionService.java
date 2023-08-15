@@ -19,4 +19,8 @@ public class ExceptionService {
     public void throwInternalServerError(String message) {
         throw new InternalServerErrorException(message);
     }
+
+    public void throwForbidden(String message) {
+        throw new ForbiddenException(message);
+    }
 }
