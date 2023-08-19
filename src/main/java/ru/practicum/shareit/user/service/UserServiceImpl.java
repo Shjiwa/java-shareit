@@ -48,9 +48,6 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper.INSTANCE::toUserDto)
                 .collect(Collectors.toList()
                 );
-        //Same question: how do I'm supposed to log this?
-        //Okay, I can create a collection, save the data, log it, and only then send it,
-        //but what about the streams then? And more lines...
     }
 
     @Override
@@ -58,7 +55,6 @@ public class UserServiceImpl implements UserService {
         return UserMapper.INSTANCE.toUserDto(userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found."))
         );
-        //Same...
     }
 
     @Transactional
