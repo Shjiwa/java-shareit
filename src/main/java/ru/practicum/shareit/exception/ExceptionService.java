@@ -16,10 +16,6 @@ public class ExceptionService {
         throw new ConflictException(message);
     }
 
-    public void throwInternalServerError(String message) {
-        throw new InternalServerErrorException(message);
-    }
-
     public void throwForbidden(String message) {
         throw new ForbiddenException(message);
     }
