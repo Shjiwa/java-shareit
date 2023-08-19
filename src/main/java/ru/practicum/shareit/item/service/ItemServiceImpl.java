@@ -25,9 +25,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.constant.Status.APPROVED;
@@ -94,13 +92,34 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> getOwnerItems(Long userId) {
-        return itemRepository.findAllByOwnerId(userId, Sort.by(Sort.DEFAULT_DIRECTION, "id"))
-                .stream()
-                .filter(item -> item.getOwner().getId().equals(userId))
-                .map(item -> getItemInfo(item.getId(), userId))
-                .collect(Collectors.toList()
-                );
-        //How do I'm supposed to log this?
+        List<Item> items = itemRepository.findAllByOwnerId(userId, Sort.by(Sort.DEFAULT_DIRECTION, "id"));
+        log.info("Find owner items with id: {}", userId);
+        List<Long> ids = items.stream().map(Item::getId).collect(Collectors.toList());
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings = bookingRepository.findAllByItemIds(ids);
+        log.info("Find bookings.");
+        List<Booking> lastBookings = bookings.stream()
+                .filter(booking -> booking.getEnd().isBefore(now))
+                .collect(Collectors.toList());
+        List<Booking> nextBookings = bookings.stream()
+                .filter(booking -> booking.getStart().isAfter(now))
+                .collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findAllByItemIds(ids);
+        log.info("Find comments.");
+        return items.stream().map(item -> {
+            List<Comment> c = comments.stream()
+                    .filter(comment -> comment.getItem().getId().equals(item.getId()))
+                    .collect(Collectors.toList());
+            Booking lastBooking = lastBookings.stream()
+                    .filter(booking -> booking.getItem().getId().equals(item.getId()))
+                    .max(Comparator.comparing(Booking::getEnd))
+                    .orElse(null);
+            Booking nextBooking = nextBookings.stream()
+                    .filter(booking -> booking.getItem().getId().equals(item.getId()))
+                    .min(Comparator.comparing(Booking::getStart))
+                    .orElse(null);
+            return ItemMapper.INSTANCE.toItemDtoOwner(item, lastBooking, nextBooking, c);
+        }).collect(Collectors.toList());
     }
 
     @Override
