@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.constant.State;
 import ru.practicum.shareit.constant.Status;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ExceptionService;
@@ -21,8 +22,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static ru.practicum.shareit.constant.State.*;
 
 @Slf4j
 @Service
@@ -67,30 +66,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getAllBookingsByUser(Long userId, String state) {
+    public List<BookingDtoOut> getAllBookingsByUser(Long userId, State state) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
         switch (state) {
-            case (ALL):
+            case ALL:
                 bookings = bookingRepository.findByBooker_IdOrderByEndDesc(userId);
                 break;
-            case (CURRENT):
+            case CURRENT:
                 bookings = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByEndDesc(userId, now, now);
                 break;
-            case (PAST):
+            case PAST:
                 bookings = bookingRepository.findByBooker_IdAndEndIsBefore(
                         userId, now, Sort.by(Sort.Direction.DESC, "start"));
                 break;
-            case (FUTURE):
+            case FUTURE:
                 bookings = bookingRepository.findByBooker_IdAndStartIsAfter(
                         userId, now, Sort.by(Sort.Direction.DESC, "start")
                 );
                 break;
-            case (WAITING):
+            case WAITING:
                 bookings = bookingRepository.findByBooker_IdAndStatusOrderByEndDesc(userId, Status.WAITING);
                 break;
-            case (REJECTED):
+            case REJECTED:
                 bookings = bookingRepository.findByBooker_IdAndStatusOrderByEndDesc(userId, Status.REJECTED);
                 break;
             default:
@@ -101,31 +100,31 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getAllBookingsForAllItemsByOwner(Long userId, String state) {
+    public List<BookingDtoOut> getAllBookingsForAllItemsByOwner(Long userId, State state) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
         List<Booking> bookings;
         LocalDateTime now = LocalDateTime.now();
         switch (state) {
-            case (ALL):
+            case ALL:
                 bookings = bookingRepository.findAllBookings(userId, Sort.by(Sort.Direction.DESC, "start"));
                 break;
-            case (CURRENT):
+            case CURRENT:
                 bookings = bookingRepository.findCurrentBookings(
                         userId, now, Sort.by(Sort.Direction.DESC, "start"));
                 break;
-            case (PAST):
+            case PAST:
                 bookings = bookingRepository.findPastBookings(
                         userId, now, Sort.by(Sort.Direction.DESC, "start"));
                 break;
-            case (FUTURE):
+            case FUTURE:
                 bookings = bookingRepository.findFutureBookings(
                         userId, now, Sort.by(Sort.Direction.DESC, "start"));
                 break;
-            case (WAITING):
+            case WAITING:
                 bookings = bookingRepository.findStatusBookings(
                         userId, Status.WAITING, Sort.by(Sort.Direction.DESC, "start"));
                 break;
-            case (REJECTED):
+            case REJECTED:
                 bookings = bookingRepository.findStatusBookings(
                         userId, Status.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
                 break;
