@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.constant.State;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -39,14 +40,16 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoOut> getAllBookingsByUser(@RequestHeader(OWNER_ID_HEADER) Long userId,
-                                                    @RequestParam(defaultValue = ALL) String state) {
+                                                    @RequestParam(required = false,
+                                                            defaultValue = "ALL") @Valid State state) {
         log.info("Поступил запрос на просмотр {} аренд от пользователя с id: {}", state, userId);
         return bookingService.getAllBookingsByUser(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoOut> getAllBookingsForAllItemsByOwner(@RequestHeader(OWNER_ID_HEADER) Long userId,
-                                                                @RequestParam(defaultValue = ALL) String state) {
+                                                                @RequestParam(required = false,
+                                                                        defaultValue = "ALL") @Valid State state) {
         log.info("Поступил запрос на просмотр {} аренд вещей владельца с id: {}", state, userId);
         return bookingService.getAllBookingsForAllItemsByOwner(userId, state);
     }
