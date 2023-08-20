@@ -1,19 +1,21 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@AllArgsConstructor
 public class ItemDto {
+
     private Long id;
-    @NotBlank
+
+    @NotBlank(message = "Error! Name can't be null.")
     private String name;
-    @NotBlank
+
+    @NotBlank(message = "Error! Description can't be null.")
     private String description;
-    @NotNull
+
+    @NotNull(message = "Error! Available can't be null.")
     private Boolean available;
 }
