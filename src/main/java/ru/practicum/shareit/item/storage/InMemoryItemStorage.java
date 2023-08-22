@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.storage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.ExceptionService;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class InMemoryItemStorage implements ItemStorage {
-    private final ExceptionService exceptionService;
     private final Map<Long, Item> items = new HashMap<>();
     private Long id = 0L;
 
@@ -57,7 +56,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public Item update(Long itemId, Long userId, Item updateItem) {
         Item item = items.get(itemId);
         if (item == null || !Objects.equals(item.getOwner().getId(), userId)) {
-            exceptionService.throwNotFound("Item not found.");
+            throw new NotFoundException("Item not found.");
         }
         if (item.getName() != null) {
             item.setName(updateItem.getName());
