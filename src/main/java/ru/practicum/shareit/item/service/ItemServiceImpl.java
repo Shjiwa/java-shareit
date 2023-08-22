@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ExceptionService;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -18,6 +18,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -38,24 +40,30 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final ExceptionService exceptionService;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        log.info("userId, {}", userId);
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
-        Item item = itemRepository.save(ItemMapper.INSTANCE.toItem(itemDto, owner));
+        Item item = ItemMapper.INSTANCE.toItem(itemDto, owner);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Request not found."));
+            item.setRequest(itemRequest);
+        }
+        itemRepository.save(item);
         log.info("Success! Item successfully added!");
-        return ItemMapper.INSTANCE.toItemDto(item);
+        return itemDto;
     }
 
     @Transactional
     @Override
     public CommentDto addComment(CommentDto commentDto, Long itemId, Long userId) {
         LocalDateTime time = LocalDateTime.now();
-        if (!bookingRepository.findBookingsByBooker_IdAAndItem_IdInPast(userId, itemId, time).isEmpty()) {
+        if (!bookingRepository
+                .findAllByBooker_IdAndItem_IdAndStartIsBeforeAndEndIsBefore(userId, itemId, time, time).isEmpty()) {
             Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found."));
             User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
             Comment comment = CommentMapper.INSTANCE.toComment(commentDto, item, author);
@@ -96,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Find owner items with id: {}", userId);
         List<Long> ids = items.stream().map(Item::getId).collect(Collectors.toList());
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings = bookingRepository.findAllByItemIds(ids);
+        List<Booking> bookings = bookingRepository.findAllByItem_IdIn(ids);
         log.info("Find bookings.");
         List<Booking> lastBookings = bookings.stream()
                 .filter(booking -> booking.getEnd().isBefore(now))
@@ -104,7 +112,7 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> nextBookings = bookings.stream()
                 .filter(booking -> booking.getStart().isAfter(now))
                 .collect(Collectors.toList());
-        List<Comment> comments = commentRepository.findAllByItemIds(ids);
+        List<Comment> comments = commentRepository.findAllByItem_IdIn(ids);
         log.info("Find comments.");
         return items.stream().map(item -> {
             List<Comment> c = comments.stream()
@@ -140,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
         Item itemFromRepo = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found."));
         if (!itemFromRepo.getOwner().equals(user)) {
-            exceptionService.throwForbidden(
+            throw new ForbiddenException(
                     "Error! You don't have permission to access this option." +
                             " Only the owner of the item can update it.");
         }
