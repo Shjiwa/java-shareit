@@ -47,6 +47,6 @@ public class ModelFactory {
     }
 
     public void setItemName(Item item) {
-        item.setName(item.getName() + " " + Math.random());
+        item.setName(item.getName() + "  " + Math.random());
     }
 }
