@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.constant.State;
+import ru.practicum.shareit.modelFactory.ModelFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ import static ru.practicum.shareit.constant.Constant.*;
 @Slf4j
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,11 +40,13 @@ public class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
 
+    private final ModelFactory factory = ModelFactory.getInstance();
+
     @Test
     void getByIdTest() throws Exception {
         Long userId = 1L;
-
-        BookingDtoOut responseDto = getBookingResponseDto(10L);
+        LocalDateTime time = LocalDateTime.now();
+        BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
 
         when(bookingService.getBookingById(eq(userId), eq(responseDto.getId()))).thenReturn(responseDto);
 
@@ -51,23 +55,25 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()));
 
-        verify(bookingService, times(1)).getBookingById(eq(userId), eq(responseDto.getId()));
+        verify(bookingService, times(1))
+                .getBookingById(eq(userId), eq(responseDto.getId()));
         verifyNoMoreInteractions(bookingService);
     }
 
     @Test
     void getAllByStateTest() throws Exception {
         Long userId = 1L;
-
-        BookingDtoOut responseDto1 = getBookingResponseDto(10L);
-        BookingDtoOut responseDto2 = getBookingResponseDto(11L);
+        LocalDateTime time = LocalDateTime.now();
+        BookingDtoOut responseDto1 = factory.getBookingResponseDto(1L, time);
+        BookingDtoOut responseDto2 = factory.getBookingResponseDto(2L, time);
 
         List<BookingDtoOut> responseDtoList = Arrays.asList(
                 responseDto1,
                 responseDto2
         );
 
-        when(bookingService.getAllBookingsByUser(eq(userId), any(), anyInt(), anyInt())).thenReturn(responseDtoList);
+        when(bookingService.getAllBookingsByUser(eq(userId), any(), anyInt(), anyInt()))
+                .thenReturn(responseDtoList);
 
         mockMvc.perform(get("/bookings")
                         .header(OWNER_ID_HEADER, userId))
@@ -75,23 +81,25 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].id").value(responseDto1.getId()))
                 .andExpect(jsonPath("$[1].id").value(responseDto2.getId()));
 
-        verify(bookingService, times(1)).getAllBookingsByUser(eq(userId), eq(State.ALL), anyInt(), anyInt());
+        verify(bookingService, times(1))
+                .getAllBookingsByUser(eq(userId), eq(State.ALL), anyInt(), anyInt());
         verifyNoMoreInteractions(bookingService);
     }
 
     @Test
     void getAllByStateForOwnerTest() throws Exception {
         Long userId = 1L;
-
-        BookingDtoOut responseDto1 = getBookingResponseDto(10L);
-        BookingDtoOut responseDto2 = getBookingResponseDto(11L);
+        LocalDateTime time = LocalDateTime.now();
+        BookingDtoOut responseDto1 = factory.getBookingResponseDto(1L, time);
+        BookingDtoOut responseDto2 = factory.getBookingResponseDto(2L, time);
 
         List<BookingDtoOut> responseDtoList = Arrays.asList(
                 responseDto1,
                 responseDto2
         );
 
-        when(bookingService.getAllBookingsForAllItemsByOwner(eq(userId), any(), anyInt(), anyInt())).thenReturn(responseDtoList);
+        when(bookingService.getAllBookingsForAllItemsByOwner(eq(userId), any(), anyInt(), anyInt()))
+                .thenReturn(responseDtoList);
 
         mockMvc.perform(get("/bookings/owner")
                         .header(OWNER_ID_HEADER, userId))
@@ -99,21 +107,19 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].id").value(responseDto1.getId()))
                 .andExpect(jsonPath("$[1].id").value(responseDto2.getId()));
 
-        verify(bookingService, times(1)).getAllBookingsForAllItemsByOwner(eq(userId), eq(State.ALL), anyInt(), anyInt());
+        verify(bookingService, times(1))
+                .getAllBookingsForAllItemsByOwner(eq(userId), eq(State.ALL), anyInt(), anyInt());
         verifyNoMoreInteractions(bookingService);
     }
 
     @Test
     void createTest() throws Exception {
         Long userId = 1L;
+        LocalDateTime time = LocalDateTime.now();
+        BookingDtoIn requestDto = factory.getBookingDtoIn(time);
+        requestDto.setItemId(1L);
 
-        BookingDtoIn requestDto = BookingDtoIn.builder()
-                .start(LocalDateTime.now().plusDays(10))
-                .end(LocalDateTime.now().plusDays(20))
-                .itemId(1L)
-                .build();
-
-        BookingDtoOut responseDto = getBookingResponseDto(10L);
+        BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
 
         when(bookingService.addBooking(any(BookingDtoIn.class), eq(userId))).thenReturn(responseDto);
 
@@ -126,17 +132,19 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()));
 
-        verify(bookingService, times(1)).addBooking(any(BookingDtoIn.class), eq(userId));
+        verify(bookingService, times(1))
+                .addBooking(any(BookingDtoIn.class), eq(userId));
         verifyNoMoreInteractions(bookingService);
     }
 
     @Test
     void approveTest() throws Exception {
         Long userId = 1L;
+        LocalDateTime time = LocalDateTime.now();
+        BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
 
-        BookingDtoOut responseDto = getBookingResponseDto(10L);
-
-        when(bookingService.updateBooking(eq(responseDto.getId()), anyBoolean(), eq(userId))).thenReturn(responseDto);
+        when(bookingService.updateBooking(eq(responseDto.getId()), anyBoolean(), eq(userId)))
+                .thenReturn(responseDto);
 
         mockMvc.perform(patch("/bookings/" + responseDto.getId())
                         .header(OWNER_ID_HEADER, userId)
@@ -144,13 +152,8 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()));
 
-        verify(bookingService, times(1)).updateBooking(eq(responseDto.getId()), eq(false), eq(userId));
+        verify(bookingService, times(1))
+                .updateBooking(eq(responseDto.getId()), eq(false), eq(userId));
         verifyNoMoreInteractions(bookingService);
-    }
-
-    private BookingDtoOut getBookingResponseDto(Long id) {
-        return BookingDtoOut.builder()
-                .id(id)
-                .build();
     }
 }

@@ -72,8 +72,8 @@ public class ItemServiceTest {
         createDto.setAvailable(item.getAvailable());
         createDto.setRequestId(itemRequest.getId());
 
-        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.ofNullable(user));
-        when(itemRequestRepository.findById(itemRequest.getId())).thenReturn(Optional.ofNullable(itemRequest));
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(itemRequestRepository.findById(itemRequest.getId())).thenReturn(Optional.of(itemRequest));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
 
         ItemDto resultDto = itemService.addItem(createDto, user.getId());
@@ -99,13 +99,12 @@ public class ItemServiceTest {
         comment.setItem(item);
         comment.setAuthor(user);
 
-        CommentDto createDto = CommentDto.builder()
-                .text(comment.getText())
-                .authorName(user.getName())
-                .build();
+        CommentDto createDto = new CommentDto();
+        createDto.setText(comment.getText());
+        createDto.setAuthorName(user.getName());
 
-        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.ofNullable(user));
-        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.of(item));
         when(bookingRepository.findAllByBooker_IdAndItem_IdAndStartIsBeforeAndEndIsBefore(eq(user.getId()), eq(item.getId()), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(List.of(new Booking()));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
@@ -127,10 +126,9 @@ public class ItemServiceTest {
         User user = getUser(1L);
         Item item = getItem(10L);
 
-        CommentDto commentDto = CommentDto.builder()
-                .text("Comment text " + 100L)
-                .authorName(user.getName())
-                .build();
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("Comment text " + 100L);
+        commentDto.setAuthorName(user.getName());
 
         when(bookingRepository.findAllByBooker_IdAndItem_IdAndStartIsBeforeAndEndIsBefore(eq(user.getId()), eq(item.getId()), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(new ArrayList<>());
 
@@ -173,7 +171,7 @@ public class ItemServiceTest {
                 comment2
         );
 
-        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.of(item));
         when(bookingRepository.findFirstByItemIdAndStatusAndStartIsBefore(eq(item.getId()), eq(APPROVED), any(LocalDateTime.class), any(Sort.class))).thenReturn(Optional.of(lastBooking));
         when(bookingRepository.findFirstByItemIdAndStatusAndStartIsAfter(eq(item.getId()), eq(APPROVED), any(LocalDateTime.class), any(Sort.class))).thenReturn(Optional.of(nextBooking));
         when(commentRepository.findAllByItemId(eq(item.getId()))).thenReturn(commentList);
@@ -222,11 +220,6 @@ public class ItemServiceTest {
         nextBooking.setStart(LocalDateTime.now().plusDays(1));
         nextBooking.setEnd(LocalDateTime.now().plusDays(2));
 
-        List<Booking> bookingList = Arrays.asList(
-                lastBooking,
-                nextBooking
-        );
-
         Comment comment1 = getComment(1000L);
         comment1.setAuthor(booker);
 
@@ -238,7 +231,7 @@ public class ItemServiceTest {
                 comment2
         );
 
-        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.of(item));
         when(commentRepository.findAllByItemId(eq(item.getId()))).thenReturn(commentList);
 
         ItemDtoOwner resultDto = (ItemDtoOwner) itemService.getItemInfo(item.getId(), notOwner.getId());
@@ -401,9 +394,9 @@ public class ItemServiceTest {
         Item item = getItem(10L);
         item.setOwner(owner);
 
-        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.of(item));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
-        when(userRepository.findById(eq(owner.getId()))).thenReturn(Optional.ofNullable(owner));
+        when(userRepository.findById(eq(owner.getId()))).thenReturn(Optional.of(owner));
 
         ItemDto resultDto = itemService.update(item.getId(), owner.getId(), inputDto);
 
@@ -427,8 +420,8 @@ public class ItemServiceTest {
         Item item = getItem(10L);
         item.setOwner(owner);
 
-        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(eq(notOwner.getId()))).thenReturn(Optional.ofNullable(notOwner));
+        when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.of(item));
+        when(userRepository.findById(eq(notOwner.getId()))).thenReturn(Optional.of(notOwner));
 
         ForbiddenException e = assertThrows(ForbiddenException.class, () -> {
             itemService.update(item.getId(), notOwner.getId(), inputDto);
@@ -473,8 +466,7 @@ public class ItemServiceTest {
         item.setOwner(owner);
 
         when(itemRepository.findById(eq(item.getId()))).thenReturn(Optional.empty());
-//        when(itemRepository.save(any(Item.class))).thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
-        when(userRepository.findById(eq(owner.getId()))).thenReturn(Optional.ofNullable(owner));
+        when(userRepository.findById(eq(owner.getId()))).thenReturn(Optional.of(owner));
 
         NotFoundException e = assertThrows(NotFoundException.class, () -> {
             itemService.update(item.getId(), owner.getId(), inputDto);

@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.modelFactory.ModelFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -35,12 +36,14 @@ public class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
+    private final ModelFactory factory = ModelFactory.getInstance();
+
     @Test
     void createTest() throws Exception {
         Long userId = 1L;
 
-        ItemDto requestDto = getRequestDto();
-        ItemDto responseDto = getItemResponseDto(10L);
+        ItemDto requestDto = factory.getItemDto();
+        ItemDto responseDto = getItemResponseDto(1L);
 
         when(itemService.addItem(any(ItemDto.class), eq(userId))).thenReturn(responseDto);
 
@@ -60,15 +63,13 @@ public class ItemControllerTest {
     @Test
     void createCommentTest() throws Exception {
         Long userId = 1L;
-        Long itemId = 10L;
+        Long itemId = 1L;
 
-        CommentDto requestDto = CommentDto.builder()
-                .text("Коммент на щетку")
-                .build();
+        CommentDto requestDto = new CommentDto();
+        requestDto.setText("Comment");
 
-        CommentDto responseDto = CommentDto.builder()
-                .id(100L)
-                .build();
+        CommentDto responseDto = new CommentDto();
+        responseDto.setId(1L);
 
         when(itemService.addComment(any(CommentDto.class), eq(itemId), eq(userId))).thenReturn(responseDto);
 
@@ -81,7 +82,8 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()));
 
-        verify(itemService, times(1)).addComment(any(CommentDto.class), eq(itemId), eq(userId));
+        verify(itemService, times(1))
+                .addComment(any(CommentDto.class), eq(itemId), eq(userId));
         verifyNoMoreInteractions(itemService);
     }
 
@@ -153,7 +155,7 @@ public class ItemControllerTest {
         Long userId = 1L;
         Long itemId = 10L;
 
-        ItemDto requestDto = getRequestDto();
+        ItemDto requestDto = factory.getItemDto();
         ItemDto responseDto = getItemResponseDto(10L);
 
         when(itemService.update(eq(itemId), eq(userId), any(ItemDto.class))).thenReturn(responseDto);
@@ -169,14 +171,6 @@ public class ItemControllerTest {
 
         verify(itemService, times(1)).update(eq(itemId), eq(userId), any(ItemDto.class));
         verifyNoMoreInteractions(itemService);
-    }
-
-    private ItemDto getRequestDto() {
-        ItemDto itemDto = new ItemDto();
-        itemDto.setName("Зубная щетка");
-        itemDto.setDescription("Почти новая");
-        itemDto.setAvailable(true);
-        return itemDto;
     }
 
     private ItemDto getItemResponseDto(Long id) {
