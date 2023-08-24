@@ -22,9 +22,6 @@ public class UserController {
     @PostMapping
     @Validated
     public UserDto addUser(@Valid @RequestBody UserDto userDto) {
-        if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new BadRequestException("Email is blank/null.");
-        }
         log.info("Поступил запрос на добавление пользователя: {}", userDto);
         return userService.add(userDto);
     }
