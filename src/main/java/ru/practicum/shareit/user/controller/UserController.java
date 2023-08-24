@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.ExceptionService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -18,14 +17,10 @@ import java.util.Collection;
 public class UserController {
 
     private final UserService userService;
-    private final ExceptionService exceptionService;
 
     @PostMapping
     @Validated
     public UserDto addUser(@Valid @RequestBody UserDto userDto) {
-        if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            exceptionService.throwBadRequest("Email is blank/null.");
-        }
         log.info("Поступил запрос на добавление пользователя: {}", userDto);
         return userService.add(userDto);
     }

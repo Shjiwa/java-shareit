@@ -10,12 +10,13 @@ import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.constant.State;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static ru.practicum.shareit.constant.Constant.OWNER_ID_HEADER;
-import static ru.practicum.shareit.constant.State.*;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -24,7 +25,6 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    @Validated
     public BookingDtoOut addBooking(@Valid @RequestBody BookingDtoIn bookingDtoIn,
                                     @RequestHeader(OWNER_ID_HEADER) Long userId) {
         log.info("Поступил запрос на оформление аренды: {} от пользователя с id: {}", bookingDtoIn, userId);
@@ -40,18 +40,22 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoOut> getAllBookingsByUser(@RequestHeader(OWNER_ID_HEADER) Long userId,
-                                                    @RequestParam(required = false,
-                                                            defaultValue = "ALL") @Valid State state) {
+                                            @RequestParam(required = false,
+                                                    defaultValue = "ALL") @Valid State state,
+                                            @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                            @RequestParam(required = false, defaultValue = "20") @Min(1) int size) {
         log.info("Поступил запрос на просмотр {} аренд от пользователя с id: {}", state, userId);
-        return bookingService.getAllBookingsByUser(userId, state);
+        return bookingService.getAllBookingsByUser(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoOut> getAllBookingsForAllItemsByOwner(@RequestHeader(OWNER_ID_HEADER) Long userId,
-                                                                @RequestParam(required = false,
-                                                                        defaultValue = "ALL") @Valid State state) {
+                                            @RequestParam(required = false,
+                                                    defaultValue = "ALL") @Valid State state,
+                                            @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                            @RequestParam(required = false, defaultValue = "20") @Min(1) int size) {
         log.info("Поступил запрос на просмотр {} аренд вещей владельца с id: {}", state, userId);
-        return bookingService.getAllBookingsForAllItemsByOwner(userId, state);
+        return bookingService.getAllBookingsForAllItemsByOwner(userId, state, from, size);
     }
 
     @PatchMapping("/{bookingId}")

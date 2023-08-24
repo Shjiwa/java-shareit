@@ -12,9 +12,9 @@ public interface BookingService {
 
     BookingDtoOut getBookingById(Long userId, Long bookingId);
 
-    List<BookingDtoOut> getAllBookingsByUser(Long userId, State state);
+    List<BookingDtoOut> getAllBookingsByUser(Long userId, State state, int from, int size);
 
-    List<BookingDtoOut> getAllBookingsForAllItemsByOwner(Long userId, State state);
+    List<BookingDtoOut> getAllBookingsForAllItemsByOwner(Long userId, State state, int from, int size);
 
     BookingDtoOut updateBooking(Long bookingId, Boolean status, Long userId);
 }
