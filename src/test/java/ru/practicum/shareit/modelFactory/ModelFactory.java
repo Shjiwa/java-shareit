@@ -6,6 +6,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.constant.Status;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -89,5 +90,12 @@ public class ModelFactory {
         item.setOwner(owner);
         item.setRequest(null);
         return item;
+    }
+
+    public ItemRequest getItemRequest() {
+        ItemRequest request = new ItemRequest();
+        request.setId(10L);
+        request.setDescription("Request " + 10L);
+        return request;
     }
 }
