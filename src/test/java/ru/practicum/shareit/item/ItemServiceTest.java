@@ -20,6 +20,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.modelFactory.ModelFactory;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
@@ -55,11 +56,13 @@ public class ItemServiceTest {
     @Mock
     private ItemRequestRepository itemRequestRepository;
 
+    private final ModelFactory factory = ModelFactory.getInstance();
+
     @Test
-    void createTest() {
+    void shouldCreateTest() {
         User user = getUser(1L);
 
-        ItemRequest itemRequest = getItemRequest();
+        ItemRequest itemRequest = factory.getItemRequest();
 
         Item item = getItem(100L);
         item.setOwner(user);
@@ -91,7 +94,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void createCommentTest() {
+    void shouldCreateCommentTest() {
         User user = getUser(1L);
         Item item = getItem(10L);
 
@@ -122,7 +125,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void createCommentTest_NoBookings() {
+    void shouldCreateCommentTest_NoBookings() {
         User user = getUser(1L);
         Item item = getItem(10L);
 
@@ -143,7 +146,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getByIdAsOwnerTest() {
+    void shouldGetByIdAsOwnerTest() {
         User owner = getUser(1L);
         User booker = getUser(2L);
 
@@ -204,7 +207,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getByIdAsNotOwnerTest() {
+    void shouldGetByIdAsNotOwnerTest() {
         User owner = getUser(1L);
         User booker = getUser(2L);
         User notOwner = getUser(3L);
@@ -258,7 +261,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getAllByOwnerIdTest() {
+    void shouldGetAllByOwnerIdTest() {
         User owner = getUser(1L);
         User booker = getUser(2L);
 
@@ -301,9 +304,7 @@ public class ItemServiceTest {
 
         when(itemRepository.findAllByOwnerId(eq(owner.getId()), any(Sort.class))).thenReturn(itemList);
         when(bookingRepository.findAllByItem_IdIn(anyList())).thenReturn(item1bookingList);
-        //when(bookingRepository.findAllByItem_IdIn(anyList())).thenReturn(new ArrayList<>());
         when(commentRepository.findAllByItem_IdIn(anyList())).thenReturn(item1commentList);
-        //when(commentRepository.findAllByItem_IdIn(anyList())).thenReturn(new ArrayList<>());
 
         List<ItemDto> resultDtoList = new ArrayList<>(itemService.getOwnerItems(owner.getId()));
         ItemDtoOwner item11 = (ItemDtoOwner) resultDtoList.get(0);
@@ -345,7 +346,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getAllBySearchTextTest() {
+    void shouldGetAllBySearchTextTest() {
         String searchText = "Item";
 
         Item item1 = getItem(1L);
@@ -377,7 +378,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void getAllBySearchTextTest_BlankQuery() {
+    void shouldGetAllBySearchTextTest_BlankQuery() {
         Collection<ItemDto> resultDtoList = itemService.getItemsByKeyword(" ");
 
         assertThat(resultDtoList.size(), equalTo(0));
@@ -386,7 +387,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateTest() {
+    void shouldUpdateTest() {
         ItemDto inputDto = new ItemDto();
 
         User owner = getUser(1L);
@@ -411,7 +412,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateTest_NotOwner() {
+    void shouldUpdateTest_NotOwner() {
         ItemDto inputDto = new ItemDto();
 
         User owner = getUser(1L);
@@ -435,7 +436,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateTest_InvalidDto() {
+    void shouldUpdateTest_InvalidDto() {
         ItemDto inputDto = new ItemDto();
         inputDto.setName("");
 
@@ -457,7 +458,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateTest_Conflict() {
+    void shouldUpdateTest_Conflict() {
         ItemDto inputDto = new ItemDto();
 
         User owner = getUser(1L);
@@ -501,13 +502,6 @@ public class ItemServiceTest {
         comment.setId(id);
         comment.setText("Comment text " + id);
         return comment;
-    }
-
-    private ItemRequest getItemRequest() {
-        ItemRequest request = new ItemRequest();
-        request.setId(10L);
-        request.setDescription("Request " + 10L);
-        return request;
     }
 
     private Booking getBooking(Long id, User booker, Item item) {

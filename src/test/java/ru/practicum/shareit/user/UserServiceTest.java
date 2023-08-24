@@ -35,7 +35,7 @@ public class UserServiceTest {
     private final ModelFactory factory = ModelFactory.getInstance();
 
     @Test
-    void createTest() {
+    void shouldCreateTest() {
         UserDto inputDto = factory.getUserDto();
 
         User user = factory.getUser(1L);
@@ -53,7 +53,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createTest_Conflict() {
+    void shouldCreateTestBadRequest() {
         UserDto inputDto = new UserDto();
 
         BadRequestException e = assertThrows(BadRequestException.class, () ->
@@ -65,7 +65,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void getByIdTest() {
+    void shouldGetByIdTest() {
         User user = factory.getUser(1L);
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
@@ -81,7 +81,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void getAllTest() {
+    void shouldGetAllTest() {
         User user1 = factory.getUser(1L);
         User user2 = factory.getUser(2L);
 
@@ -107,7 +107,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateTest() {
+    void shouldUpdateTest() {
         UserDto inputDto = new UserDto();
 
         User user = factory.getUser(1L);
@@ -127,7 +127,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateTest_InvalidDto() {
+    void shouldUpdateTestInvalidDto() {
         UserDto inputDto = new UserDto();
         inputDto.setEmail("invalidEmail");
 
@@ -145,7 +145,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateTest_Conflict() {
+    void shouldUpdateTestConflict() {
         UserDto inputDto = new UserDto();
 
         User user = factory.getUser(1L);
@@ -164,7 +164,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void deleteTest() {
+    void shouldDeleteTest() {
         userService.deleteById(1L);
 
         verify(userRepository, times(1)).deleteById(eq(1L));

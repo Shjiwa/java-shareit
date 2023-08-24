@@ -39,7 +39,33 @@ public class ItemRequestControllerTest {
     private ItemRequestService itemRequestService;
 
     @Test
-    void getAllByOwnerIdTest() throws Exception {
+    void shouldCreateTest() throws Exception {
+        Long userId = 1L;
+
+        ItemRequestDto requestDto = new ItemRequestDto();
+        requestDto.setDescription("Test item request");
+
+        ItemResponseDto responseDto = ItemResponseDto.builder()
+                .id(1L)
+                .build();
+
+        when(itemRequestService.create(eq(userId), any(ItemRequestDto.class))).thenReturn(responseDto);
+
+        mockMvc.perform(post("/requests")
+                        .header(OWNER_ID_HEADER, userId)
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId()));
+
+        verify(itemRequestService, times(1)).create(eq(userId), any(ItemRequestDto.class));
+        verifyNoMoreInteractions(itemRequestService);
+    }
+
+    @Test
+    void shouldGetAllByOwnerIdTest() throws Exception {
         Long userId = 1L;
 
         ItemResponseWithItemsDto responseDto1 = getResponseDto(1L);
@@ -63,7 +89,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getAllTest() throws Exception {
+    void shouldGetAllTest() throws Exception {
         Long userId = 1L;
 
         ItemResponseWithItemsDto responseDto1 = getResponseDto(1L);
@@ -87,7 +113,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getByIdTest() throws Exception {
+    void shouldGetByIdTest() throws Exception {
         Long userId = 1L;
 
         ItemResponseWithItemsDto responseDto = getResponseDto(1L);
@@ -100,32 +126,6 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.id").value(responseDto.getId()));
 
         verify(itemRequestService, times(1)).getById(eq(userId), eq(responseDto.getId()));
-        verifyNoMoreInteractions(itemRequestService);
-    }
-
-    @Test
-    void createTest() throws Exception {
-        Long userId = 1L;
-
-        ItemRequestDto requestDto = new ItemRequestDto();
-        requestDto.setDescription("Test item request");
-
-        ItemResponseDto responseDto = ItemResponseDto.builder()
-                .id(1L)
-                .build();
-
-        when(itemRequestService.create(eq(userId), any(ItemRequestDto.class))).thenReturn(responseDto);
-
-        mockMvc.perform(post("/requests")
-                        .header(OWNER_ID_HEADER, userId)
-                        .content(objectMapper.writeValueAsString(requestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(responseDto.getId()));
-
-        verify(itemRequestService, times(1)).create(eq(userId), any(ItemRequestDto.class));
         verifyNoMoreInteractions(itemRequestService);
     }
 

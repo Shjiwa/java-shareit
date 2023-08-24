@@ -11,8 +11,10 @@ import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.constant.State;
 import ru.practicum.shareit.constant.Status;
 import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.ErrorHandler;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -43,6 +45,9 @@ public class BookingServiceTest {
     private UserRepository userRepository;
     @Mock
     private ItemRepository itemRepository;
+
+    @Mock
+    private ErrorHandler errorHandler;
 
     private final ModelFactory factory = ModelFactory.getInstance();
 
@@ -261,6 +266,26 @@ public class BookingServiceTest {
                         eq(booker.getId()), eq(Status.REJECTED), any(Pageable.class));
 
         verifyNoMoreInteractions(userRepository, bookingRepository);
+    }
+
+    @Test
+    void shouldThrowBadRequestByUnknownState() {
+        User booker = factory.getUser(1L);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
+                bookingService.getAllBookingsByUser(
+                        booker.getId(), State.valueOf("UNSUPPORTED_STATUS"), 0, 10));
+
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () ->
+                bookingService.getAllBookingsForAllItemsByOwner(
+                        booker.getId(), State.valueOf("UNSUPPORTED_STATUS"), 0, 10));
+
+        assertThat(e.getMessage(),
+                equalTo("No enum constant ru.practicum.shareit.constant.State.UNSUPPORTED_STATUS"));
+        assertThat(e2.getMessage(),
+                equalTo("No enum constant ru.practicum.shareit.constant.State.UNSUPPORTED_STATUS"));
+
+        verify(bookingRepository, never()).findById(booker.getId());
     }
 
     @Test

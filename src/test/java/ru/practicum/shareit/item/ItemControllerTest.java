@@ -39,7 +39,7 @@ public class ItemControllerTest {
     private final ModelFactory factory = ModelFactory.getInstance();
 
     @Test
-    void createTest() throws Exception {
+    void shouldCreateTest() throws Exception {
         Long userId = 1L;
 
         ItemDto requestDto = factory.getItemDto();
@@ -61,7 +61,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void createCommentTest() throws Exception {
+    void shouldCreateCommentTest() throws Exception {
         Long userId = 1L;
         Long itemId = 1L;
 
@@ -88,7 +88,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getByIdTest() throws Exception {
+    void shouldGetByIdTest() throws Exception {
         Long userId = 1L;
 
         ItemDto responseDto = getItemResponseDto(10L);
@@ -105,7 +105,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getAllByOwnerId() throws Exception {
+    void shouldGetAllByOwnerIdTest() throws Exception {
         Long userId = 1L;
 
         ItemDto responseDto1 = getItemResponseDto(10L);
@@ -129,7 +129,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getAllBySearchTextTest() throws Exception {
+    void shouldGetAllBySearchTextTest() throws Exception {
         ItemDto responseDto1 = getItemResponseDto(10L);
         ItemDto responseDto2 = getItemResponseDto(11L);
 
@@ -151,7 +151,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void update() throws Exception {
+    void shouldUpdateTest() throws Exception {
         Long userId = 1L;
         Long itemId = 10L;
 

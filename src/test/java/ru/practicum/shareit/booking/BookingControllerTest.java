@@ -43,7 +43,32 @@ public class BookingControllerTest {
     private final ModelFactory factory = ModelFactory.getInstance();
 
     @Test
-    void getByIdTest() throws Exception {
+    void shouldCreateTest() throws Exception {
+        Long userId = 1L;
+        LocalDateTime time = LocalDateTime.now();
+        BookingDtoIn requestDto = factory.getBookingDtoIn(time);
+        requestDto.setItemId(1L);
+
+        BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
+
+        when(bookingService.addBooking(any(BookingDtoIn.class), eq(userId))).thenReturn(responseDto);
+
+        mockMvc.perform(post("/bookings")
+                        .header(OWNER_ID_HEADER, userId)
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId()));
+
+        verify(bookingService, times(1))
+                .addBooking(any(BookingDtoIn.class), eq(userId));
+        verifyNoMoreInteractions(bookingService);
+    }
+
+    @Test
+    void shouldGetByIdTest() throws Exception {
         Long userId = 1L;
         LocalDateTime time = LocalDateTime.now();
         BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
@@ -61,7 +86,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getAllByStateTest() throws Exception {
+    void shouldGetAllByStateTest() throws Exception {
         Long userId = 1L;
         LocalDateTime time = LocalDateTime.now();
         BookingDtoOut responseDto1 = factory.getBookingResponseDto(1L, time);
@@ -87,7 +112,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getAllByStateForOwnerTest() throws Exception {
+    void shouldGetAllByStateForOwnerTest() throws Exception {
         Long userId = 1L;
         LocalDateTime time = LocalDateTime.now();
         BookingDtoOut responseDto1 = factory.getBookingResponseDto(1L, time);
@@ -113,32 +138,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void createTest() throws Exception {
-        Long userId = 1L;
-        LocalDateTime time = LocalDateTime.now();
-        BookingDtoIn requestDto = factory.getBookingDtoIn(time);
-        requestDto.setItemId(1L);
-
-        BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
-
-        when(bookingService.addBooking(any(BookingDtoIn.class), eq(userId))).thenReturn(responseDto);
-
-        mockMvc.perform(post("/bookings")
-                        .header(OWNER_ID_HEADER, userId)
-                        .content(objectMapper.writeValueAsString(requestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(responseDto.getId()));
-
-        verify(bookingService, times(1))
-                .addBooking(any(BookingDtoIn.class), eq(userId));
-        verifyNoMoreInteractions(bookingService);
-    }
-
-    @Test
-    void approveTest() throws Exception {
+    void shouldUpdateBookingTest() throws Exception {
         Long userId = 1L;
         LocalDateTime time = LocalDateTime.now();
         BookingDtoOut responseDto = factory.getBookingResponseDto(1L, time);
@@ -155,5 +155,27 @@ public class BookingControllerTest {
         verify(bookingService, times(1))
                 .updateBooking(eq(responseDto.getId()), eq(false), eq(userId));
         verifyNoMoreInteractions(bookingService);
+    }
+
+    @Test
+    void shouldGetInternal() throws Exception {
+        mockMvc.perform(get("/bookings")
+                        .header(OWNER_ID_HEADER, 1)
+                        .param("from", "-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void shouldGetMismatch() throws Exception {
+        mockMvc.perform(get("/bookings")
+                        .header(OWNER_ID_HEADER, 1)
+                        .param("state", "LOL")
+                        .param("from", "0")
+                        .param("size", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

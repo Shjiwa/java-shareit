@@ -36,7 +36,7 @@ public class UserControllerTest {
     private final ModelFactory factory = ModelFactory.getInstance();
 
     @Test
-    void createTest() throws Exception {
+    void shouldCreateTest() throws Exception {
         UserDto userDto = factory.getUserDto();
 
         when(userService.add(any(UserDto.class))).thenReturn(userDto);
@@ -54,7 +54,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void getByIdTest() throws Exception {
+    void shouldGetByIdTest() throws Exception {
         UserDto userDto = factory.getUserDto();
         userDto.setId(1L);
 
@@ -69,7 +69,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void getAllTest() throws Exception {
+    void shouldGetAllTest() throws Exception {
         UserDto userDto1 = factory.getUserDto();
         UserDto userDto2 = factory.getUserDto();
         userDto2.setId(2L);
@@ -91,7 +91,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateTest() throws Exception {
+    void shouldUpdateTest() throws Exception {
         UserDto userDto = factory.getUserDto();
         userDto.setId(1L);
 
@@ -110,7 +110,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void deleteTest() throws Exception {
+    void shouldDeleteTest() throws Exception {
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isOk());
 

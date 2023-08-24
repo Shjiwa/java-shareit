@@ -44,7 +44,27 @@ public class ItemRequestServiceTest {
     private final ModelFactory factory = ModelFactory.getInstance();
 
     @Test
-    void getAllByRequesterIdTest() {
+    void shouldCreateTest() {
+        User user = factory.getUser(1L);
+        ItemRequest itemRequest = getItemRequest(10L);
+
+        ItemRequestDto itemRequestCreateDto = new ItemRequestDto();
+
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(itemRequestRepository.save(any(ItemRequest.class))).thenReturn(itemRequest);
+
+        ItemResponseDto resultDto = itemRequestService.create(user.getId(), itemRequestCreateDto);
+
+        assertThat(resultDto.getId(), equalTo(itemRequest.getId()));
+        assertThat(resultDto.getDescription(), equalTo(itemRequest.getDescription()));
+
+        verify(userRepository, times(1)).findById(eq(user.getId()));
+        verify(itemRequestRepository, times(1)).save(any(ItemRequest.class));
+        verifyNoMoreInteractions(itemRequestRepository, userRepository, itemRepository);
+    }
+
+    @Test
+    void shouldGetAllByRequesterIdTest() {
         User owner = factory.getUser(1L);
         User requester = factory.getUser(2L);
 
@@ -101,7 +121,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getAllTest() {
+    void shouldGetAllTest() {
         User owner = factory.getUser(1L);
         User requester = factory.getUser(2L);
 
@@ -157,7 +177,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getByIdTest() {
+    void shouldGetByIdTest() {
         User owner = factory.getUser(1L);
         User requester = factory.getUser(2L);
 
@@ -185,26 +205,6 @@ public class ItemRequestServiceTest {
         verify(userRepository, times(1)).findById(eq(requester.getId()));
         verify(itemRequestRepository, times(1)).findById(eq(itemRequest.getId()));
         verify(itemRepository, times(1)).findAllByRequestId(eq(itemRequest.getId()));
-        verifyNoMoreInteractions(itemRequestRepository, userRepository, itemRepository);
-    }
-
-    @Test
-    void createTest() {
-        User user = factory.getUser(1L);
-        ItemRequest itemRequest = getItemRequest(10L);
-
-        ItemRequestDto itemRequestCreateDto = new ItemRequestDto();
-
-        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
-        when(itemRequestRepository.save(any(ItemRequest.class))).thenReturn(itemRequest);
-
-        ItemResponseDto resultDto = itemRequestService.create(user.getId(), itemRequestCreateDto);
-
-        assertThat(resultDto.getId(), equalTo(itemRequest.getId()));
-        assertThat(resultDto.getDescription(), equalTo(itemRequest.getDescription()));
-
-        verify(userRepository, times(1)).findById(eq(user.getId()));
-        verify(itemRequestRepository, times(1)).save(any(ItemRequest.class));
         verifyNoMoreInteractions(itemRequestRepository, userRepository, itemRepository);
     }
 
