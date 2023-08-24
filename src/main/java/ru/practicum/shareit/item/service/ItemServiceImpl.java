@@ -53,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
                     .orElseThrow(() -> new NotFoundException("Request not found."));
             item.setRequest(itemRequest);
         }
-        itemRepository.save(item);
+        itemDto = ItemMapper.INSTANCE.toItemDto(itemRepository.save(item));
         log.info("Success! Item successfully added!");
         return itemDto;
     }
