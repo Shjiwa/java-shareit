@@ -17,7 +17,7 @@ public class BookingDtoIn {
     @FutureOrPresent(message = "Error! Start time can't be in past.")
     private LocalDateTime start;
 
-    @NotNull(message = "Error! Start time can't be null.")
+    @NotNull(message = "Error! End time can't be null.")
     @FutureOrPresent(message = "Error! End time can't be in past.")
     private LocalDateTime end;
 
