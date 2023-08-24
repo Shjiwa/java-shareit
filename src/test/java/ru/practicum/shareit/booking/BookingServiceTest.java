@@ -14,7 +14,6 @@ import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.constant.State;
 import ru.practicum.shareit.constant.Status;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ErrorHandler;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -45,9 +44,6 @@ public class BookingServiceTest {
     private UserRepository userRepository;
     @Mock
     private ItemRepository itemRepository;
-
-    @Mock
-    private ErrorHandler errorHandler;
 
     private final ModelFactory factory = ModelFactory.getInstance();
 
