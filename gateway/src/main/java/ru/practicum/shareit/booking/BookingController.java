@@ -63,8 +63,8 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> updateBooking(@RequestHeader(OWNER_ID_HEADER) Long userId,
                                                 @PathVariable Long bookingId,
-                                                @RequestParam Boolean isApproved) {
+                                                @RequestParam Boolean approved) {
         log.info("Поступил запрос на обновление статуса аренды с id: {}", bookingId);
-        return bookingClient.update(userId, bookingId, isApproved);
+        return bookingClient.update(userId, bookingId, approved);
     }
 }
