@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import ru.practicum.shareit.error.BadRequestException;
 import ru.practicum.shareit.error.ConflictException;
 import ru.practicum.shareit.modelFactory.ModelFactory;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -50,18 +49,6 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).save(any(User.class));
         verifyNoMoreInteractions(userRepository);
-    }
-
-    @Test
-    void shouldCreateTestBadRequest() {
-        UserDto inputDto = new UserDto();
-
-        BadRequestException e = assertThrows(BadRequestException.class, () ->
-                userService.add(inputDto));
-
-        assertThat(e.getMessage(), equalTo("Data is not valid."));
-
-        verifyNoInteractions(userRepository);
     }
 
     @Test
@@ -123,24 +110,6 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).findById(eq(user.getId()));
         verify(userRepository, times(1)).save(any(User.class));
-        verifyNoMoreInteractions(userRepository);
-    }
-
-    @Test
-    void shouldUpdateTestInvalidDto() {
-        UserDto inputDto = new UserDto();
-        inputDto.setEmail("invalidEmail");
-
-        User user = factory.getUser(1L);
-
-        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
-
-        BadRequestException e = assertThrows(BadRequestException.class, () ->
-                userService.update(user.getId(), inputDto));
-
-        assertThat(e.getMessage(), equalTo("Invalid data to update."));
-
-        verify(userRepository, times(1)).findById(eq(user.getId()));
         verifyNoMoreInteractions(userRepository);
     }
 

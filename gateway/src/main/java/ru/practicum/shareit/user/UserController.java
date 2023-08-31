@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -18,7 +17,6 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    @Validated
     public ResponseEntity<Object> addUser(@Valid @RequestBody UserDto userDto) {
         log.info("Поступил запрос на добавление пользователя: {}", userDto);
         return userClient.create(userDto);
@@ -32,7 +30,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Object> getAllUsers() {
-        log.info("Поступил запрос на получение списка всех пользоваетелей");
+        log.info("Поступил запрос на получение списка всех пользователей");
         return userClient.getAll();
     }
 

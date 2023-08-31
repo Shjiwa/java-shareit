@@ -24,7 +24,7 @@ public class ItemRequestController {
     @PostMapping
     public ResponseEntity<Object> createRequest(@RequestHeader(OWNER_ID_HEADER) Long userId,
                                                 @Valid @RequestBody ItemRequestDto itemRequestDto) {
-        log.info("Поступил запрос на создание запроса от пользоватля с id: {}, текст запроса: {}",
+        log.info("Поступил запрос на создание запроса от пользователя с id: {}, текст запроса: {}",
                 userId, itemRequestDto.getDescription());
         return itemRequestClient.create(userId, itemRequestDto);
     }
